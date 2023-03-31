@@ -1,0 +1,47 @@
+version: '3'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "15672:15672" # For RabbitMQ management interface
+      - "5672:5672" # For RabbitMQ message broker
+
+  db:
+    image: mongo
+    ports:
+      - "27017:27017" # For MongoDB port
+    volumes:
+      - ./data:/data/db # For MongoDB data persistence
+
+  producer:
+    build: ./producer
+    ports:
+      - "5000:5000" # For Flask server
+
+  consumer_health_check:
+    build: ./consumer
+    command: python health_check_consumer.py
+    depends_on:
+      - rabbitmq
+
+  consumer_insert_record:
+    build: ./consumer
+    command: python insert_record_consumer.py
+    depends_on:
+      - rabbitmq
+      - db
+
+  consumer_delete_record:
+    build: ./consumer
+    command: python delete_record_consumer.py
+    depends_on:
+      - rabbitmq
+      - db
+
+  consumer_read_database:
+    build: ./consumer
+    command: python read_database_consumer.py
+    depends_on:
+      - rabbitmq
+      - db
