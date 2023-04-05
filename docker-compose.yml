@@ -1,4 +1,4 @@
-version: '3'
+version: "3.8"
 
 services:
   rabbitmq:
@@ -6,42 +6,87 @@ services:
     ports:
       - "15672:15672" # For RabbitMQ management interface
       - "5672:5672" # For RabbitMQ message broker
+    logging:
+      driver: none
+    networks:
+      - custom_network
 
-  db:
-    image: mongo
+  mongodb:
+    image: mongo:latest
     ports:
-      - "27017:27017" # For MongoDB port
+      - "27017:27017"
+    logging:
+      driver: none
     volumes:
       - ./data:/data/db # For MongoDB data persistence
 
   producer:
-    build: ./producer
+    build: Producer/
     ports:
       - "5000:5000" # For Flask server
+    networks:
+      - custom_network
 
   consumer_health_check:
-    build: ./consumer
-    command: python health_check_consumer.py
+    # build: ./consumer
+    build: Consumer_one/
+    command: python3 health_check_consumer.py
+    environment:
+      - CONSUMER_ID=consumer_health_check
+      - CONSUMER_IP=localhost
+      - CONSUMER_PORT=9001
+      - SERVER_HOST=producer
+      - SERVER_PORT=5000
     depends_on:
       - rabbitmq
+    networks:
+      - custom_network
 
   consumer_insert_record:
-    build: ./consumer
-    command: python insert_record_consumer.py
+    build: Consumer_two/
+    command: python3 insert_record_consumer.py
+    environment:
+      - CONSUMER_ID=consumer_health_check
+      - CONSUMER_IP=localhost
+      - CONSUMER_PORT=9002
+      - SERVER_HOST=producer
+      - SERVER_PORT=5000
     depends_on:
       - rabbitmq
-      - db
+      - mongodb
+    networks:
+      - custom_network
 
   consumer_delete_record:
-    build: ./consumer
-    command: python delete_record_consumer.py
+    build: Consumer_three/
+    command: python3 delete_record_consumer.py
+    environment:
+      - CONSUMER_ID=consumer_delete_record
+      - CONSUMER_IP=localhost
+      - CONSUMER_PORT=9003
+      - SERVER_HOST=producer
+      - SERVER_PORT=5000
     depends_on:
       - rabbitmq
-      - db
+      - mongodb
+    networks:
+      - custom_network
 
   consumer_read_database:
-    build: ./consumer
-    command: python read_database_consumer.py
+    build: Consumer_four/
+    command: python3 read_database_consumer.py
+    environment:
+      - CONSUMER_ID=consumer_read_database
+      - CONSUMER_IP=localhost
+      - CONSUMER_PORT=9004
+      - SERVER_HOST=producer
+      - SERVER_PORT=5000
     depends_on:
       - rabbitmq
-      - db
+      - mongodb
+    networks:
+      - custom_network
+
+networks:
+  custom_network:
+    driver: bridge

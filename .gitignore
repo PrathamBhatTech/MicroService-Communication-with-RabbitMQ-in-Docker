@@ -1,0 +1,5 @@
+producer/node_modules/
+consumer/node_modules/
+db_consumer/node_modules/
+
+data/

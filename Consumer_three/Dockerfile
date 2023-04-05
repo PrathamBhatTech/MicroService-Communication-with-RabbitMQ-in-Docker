@@ -2,9 +2,11 @@ FROM python:3.9-slim-buster
 
 WORKDIR /app
 
-COPY . .
+COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 
-EXPOSE 9001
+COPY deletion.py deletion.py
+
+EXPOSE 9003
 
 CMD ["python3", "consumer.py"]
