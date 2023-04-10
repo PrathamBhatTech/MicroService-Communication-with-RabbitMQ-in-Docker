@@ -1,5 +1,8 @@
 version: "3.8"
 
+volumes:
+  mongodata:
+
 networks:
   custom_network:
     driver: bridge
@@ -29,20 +32,14 @@ services:
     image: mongo:latest
     ports:
       - "27017:27017"
-    logging:
-      driver: none
-    container_name: mongodb
     restart: unless-stopped
-    command: mongod --auth
+    # command: mongod --auth
     environment:
       MONGO_INITDB_ROOT_USERNAME: user
       MONGO_INITDB_ROOT_PASSWORD: pass
-      MONGO_INITDB_DATABASE: databae
-      MONGODB_DATA_DIR: /data/db
+      MONGO_INITDB_DATABASE: database
     volumes:
-      - type: bind
-        source: ./data
-        target: /data/db
+      - mongodata:/data/db
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongo mongo:27017/test --quiet
       interval: 10s
