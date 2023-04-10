@@ -1,12 +1,13 @@
-from flask import Flask, request
+from flask import Flask, request, render_template
 import pika
 import json
 
 app = Flask(__name__)
 
 # RabbitMQ setup
-connection = pika.BlockingConnection(
-    pika.ConnectionParameters(host='rabbitmq'))
+credentials = pika.PlainCredentials(username='guest', password='guest')
+parameters = pika.ConnectionParameters(host='localhost', port=5672, credentials=credentials)
+connection = pika.BlockingConnection(parameters=parameters)
 channel = connection.channel()
 
 # Declare exchange
@@ -24,6 +25,10 @@ channel.queue_bind(exchange='microservices', queue='insert_record', routing_key=
 channel.queue_bind(exchange='microservices', queue='delete_record', routing_key='delete_record')
 channel.queue_bind(exchange='microservices', queue='read_database', routing_key='read_database')
 
+@app.route('/')
+def index():
+    # return render_template('../templates/index.html')
+    return "<p>Hello, World!</p>"
 
 # Health check endpoint
 @app.route('/health_check', methods=['GET'])
@@ -43,7 +48,7 @@ def insert_record():
     message = json.dumps({'name': name, 'srn': srn, 'section': section})
     # Publish message to insert_record queue
     channel.basic_publish(exchange='microservices', routing_key='insert_record', body=message)
-    return 'Record Insert message sent!'
+    return render_template('../templates/insert.html', message='Record Inserted Successfully!')
 
 
 # Delete record endpoint
@@ -61,7 +66,7 @@ def delete_record():
 def read_database():
     # Publish message to read_database queue
     channel.basic_publish(exchange='microservices', routing_key='read_database', body='Read database request')
-    return 'Read Database message sent!'
+    return render_template('../templates/read.html', message='Read Database message sent!')
 
 
 if __name__ == '__main__':

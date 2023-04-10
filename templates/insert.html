@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Insert Record</title>
+	<!-- Load Bootstrap CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+</head>
+<body>
+	<div class="container">
+		<h1>Add a New Record</h1>
+		<form id="insert-form">
+			<div class="form-group">
+				<label for="name">Name:</label>
+				<input type="text" class="form-control" id="name" name="name" required>
+			</div>
+			<div class="form-group">
+				<label for="srn">SRN:</label>
+				<input type="text" class="form-control" id="srn" name="srn" required>
+			</div>
+			<div class="form-group">
+				<label for="section">Section:</label>
+				<input type="text" class="form-control" id="section" name="section" required>
+			</div>
+			<button type="submit" class="btn btn-primary">Submit</button>
+		</form>
+	</div>
+	<!-- Load Bootstrap JS and jQuery -->
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+	<script>
+		$(document).ready(function() {
+			$("#insert-form").submit(function(event) {
+				event.preventDefault(); // Prevent the form from submitting normally
+
+				// Get the form data
+				var formData = {
+					name: $("#name").val(),
+					srn: $("#srn").val(),
+					section: $("#section").val()
+				};
+
+				// Send the form data to the server using AJAX
+				$.ajax({
+					type: "POST",
+					url: "", // Replace with the URL of your server-side script
+					data: formData,
+					success: function(data) {
+						// Display a success message to the user
+						alert("Record added successfully!");
+						$("#insert-form")[0].reset(); // Reset the form
+					},
+					error: function(xhr, status, error) {
+						// Display an error message to the user
+						alert("An error occurred: " + error);
+					}
+				});
+			});
+		});
+	</script>
+</body>
+</html>

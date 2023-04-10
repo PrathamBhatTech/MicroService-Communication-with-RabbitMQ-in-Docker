@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Read Database</title>
+	<!-- Load Bootstrap CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+</head>
+<body>
+	<div class="container">
+		<h1>Database Records</h1>
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th>SRN</th>
+					<th>Section</th>
+				</tr>
+			</thead>
+			<tbody id="records-table-body">
+			</tbody>
+		</table>
+	</div>
+	<!-- Load Bootstrap JS and jQuery -->
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+	<script>
+		$(document).ready(function() {
+			// Load the JSON data from a file
+			$.getJSON("database.json", function(data) {
+				// Loop through the records and add them to the table
+				$.each(data, function(key, value) {
+					var tr = $("<tr>");
+					$.each(value, function(index, item) {
+						var td = $("<td>").text(item);
+						tr.append(td);
+					});
+					$("#records-table-body").append(tr);
+				});
+			});
+		});
+	</script>
+</body>
+</html>

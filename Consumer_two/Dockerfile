@@ -1,10 +1,8 @@
 FROM python:3.9-slim-buster
 
-WORKDIR /app
+WORKDIR /
 
 COPY . .
 RUN pip3 install -r requirements.txt
 
-EXPOSE 9002
-
-CMD ["python3", "consumer.py"]
+CMD ["python3", "insertion.py"]

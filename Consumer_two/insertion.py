@@ -6,9 +6,12 @@ client = pymongo.MongoClient("mongodb://localhost:27017/")
 db = client["mydatabase"]
 collection = db["students"]
 
-# Connect to RabbitMQ server
-connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+# RabbitMQ setup
+credentials = pika.PlainCredentials(username='guest', password='guest')
+parameters = pika.ConnectionParameters(host='localhost', port=5672, credentials=credentials)
+connection = pika.BlockingConnection(parameters=parameters)
 channel = connection.channel()
+
 
 # Declare the "insert_record" queue
 channel.queue_declare(queue='insert_record')

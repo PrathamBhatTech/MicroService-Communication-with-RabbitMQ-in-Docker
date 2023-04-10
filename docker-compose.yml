@@ -1,13 +1,27 @@
 version: "3.8"
 
+networks:
+  custom_network:
+    driver: bridge
+
 services:
   rabbitmq:
     image: rabbitmq:3-management
     ports:
       - "15672:15672" # For RabbitMQ management interface
       - "5672:5672" # For RabbitMQ message broker
+      # - "25672:25672" # For RabbitMQ clustering
+    environment:
+      APP_ENV: "dev"
+      APP_DEBUG: "False"
+      APP_PORT: 5000
     logging:
       driver: none
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 3
     networks:
       - custom_network
 
@@ -17,76 +31,91 @@ services:
       - "27017:27017"
     logging:
       driver: none
+    container_name: mongodb
+    restart: unless-stopped
+    command: mongod --auth
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: user
+      MONGO_INITDB_ROOT_PASSWORD: pass
+      MONGO_INITDB_DATABASE: databae
+      MONGODB_DATA_DIR: /data/db
     volumes:
-      - ./data:/data/db # For MongoDB data persistence
+      - type: bind
+        source: ./data
+        target: /data/db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo mongo:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    networks:
+      - custom_network
 
   producer:
     build: Producer/
     ports:
       - "5000:5000" # For Flask server
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
     networks:
       - custom_network
 
   consumer_health_check:
     # build: ./consumer
     build: Consumer_one/
-    command: python3 health_check_consumer.py
-    environment:
-      - CONSUMER_ID=consumer_health_check
-      - CONSUMER_IP=localhost
-      - CONSUMER_PORT=9001
-      - SERVER_HOST=producer
-      - SERVER_PORT=5000
+    command: python3 health_check.py
     depends_on:
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
     networks:
       - custom_network
 
   consumer_insert_record:
     build: Consumer_two/
-    command: python3 insert_record_consumer.py
-    environment:
-      - CONSUMER_ID=consumer_health_check
-      - CONSUMER_IP=localhost
-      - CONSUMER_PORT=9002
-      - SERVER_HOST=producer
-      - SERVER_PORT=5000
+    command: python3 insert_record.py
     depends_on:
-      - rabbitmq
-      - mongodb
+      rabbitmq:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+    environment:
+      MONGODB_DATABASE: database
+      MONGODB_USERNAME: user
+      MONGODB_PASSWORD: pass
+      MONGODB_HOSTNAME: mongodb
     networks:
       - custom_network
 
-  consumer_delete_record:
-    build: Consumer_three/
-    command: python3 delete_record_consumer.py
-    environment:
-      - CONSUMER_ID=consumer_delete_record
-      - CONSUMER_IP=localhost
-      - CONSUMER_PORT=9003
-      - SERVER_HOST=producer
-      - SERVER_PORT=5000
-    depends_on:
-      - rabbitmq
-      - mongodb
-    networks:
-      - custom_network
+  # consumer_delete_record:
+  #   build: Consumer_three/
+  #   command: python3 delete_record.py
+  #   environment:
+  #     # - CONSUMER_ID=consumer_delete_record
+  #     # - CONSUMER_IP=localhost
+  #     # - CONSUMER_PORT=9003
+  #     - SERVER_HOST=producer
+  #     - SERVER_PORT=5000
+  #   depends_on:
+  #     - rabbitmq
+  #     - mongodb
+  #   networks:
+  #     - custom_network
 
   consumer_read_database:
     build: Consumer_four/
-    command: python3 read_database_consumer.py
-    environment:
-      - CONSUMER_ID=consumer_read_database
-      - CONSUMER_IP=localhost
-      - CONSUMER_PORT=9004
-      - SERVER_HOST=producer
-      - SERVER_PORT=5000
+    command: python3 read_database.py
     depends_on:
-      - rabbitmq
-      - mongodb
+      rabbitmq:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+    environment:
+      MONGODB_DATABASE: database
+      MONGODB_USERNAME: user
+      MONGODB_PASSWORD: pass
+      MONGODB_HOSTNAME: mongodb
     networks:
       - custom_network
 
-networks:
-  custom_network:
-    driver: bridge

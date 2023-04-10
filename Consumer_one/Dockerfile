@@ -5,6 +5,4 @@ WORKDIR /app
 COPY . .
 RUN pip3 install -r requirements.txt
 
-EXPOSE 9001
-
-CMD ["python3", "consumer.py"]
+CMD ["python3", "health_check.py"]
