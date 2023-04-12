@@ -6,8 +6,8 @@ app = Flask(__name__)
 
 # RabbitMQ setup
 credentials = pika.PlainCredentials(username='guest', password='guest')
-parameters = pika.ConnectionParameters(host='localhost', port=5672, credentials=credentials)
-connection = pika.BlockingConnection(parameters=parameters)
+parameters = pika.ConnectionParameters(host='rabbitmq', port=5672, credentials=credentials)
+connection = pika.BlockingConnection(parameters)
 channel = connection.channel()
 
 # Declare exchange
