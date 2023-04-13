@@ -4,15 +4,15 @@ import pymongo
 
 # Connect to MongoDB
 client = pymongo.MongoClient("mongodb://localhost:27017/")
-db = client["mydatabase"]
-col = db["students"]
+db = client["database"]
+col = db["ccdb"]
 
 # RabbitMQ Connection
 connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
 channel = connection.channel()
 
 # Declare the queue
-channel.queue_declare(queue='delete_record')
+channel.queue_declare(queue='delete_record', durable=True)
 
 # Define callback function
 def callback(ch, method, properties, body):

@@ -16,7 +16,10 @@ connection = pika.BlockingConnection(parameters=parameters)
 channel = connection.channel()
 
 # Declare the queue
-channel.queue_declare(queue='health_check')
+channel.queue_declare(
+    queue='health_check',
+    durable=True
+)
 
 # Callback function
 def callback(ch, method, properties, body):

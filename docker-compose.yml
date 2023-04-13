@@ -6,8 +6,8 @@ volumes:
 networks:
   prodcon_network:
     driver: bridge
-  rabbitmq_network:
-    driver: bridge
+  # rabbitmq_network:
+  #   driver: bridge
 
 services:
   rabbitmq:
@@ -23,28 +23,30 @@ services:
       timeout: 30s
       retries: 3
     networks:
-      - rabbitmq_network
+      - prodcon_network
 
-  # mongodb:
-  #   image: mongo:latest
-  #   ports:
-  #     - "27017:27017"
-  #   restart: unless-stopped
-  #   # command: mongod --auth
-  #   environment:
-  #     MONGO_INITDB_ROOT_USERNAME: user
-  #     MONGO_INITDB_ROOT_PASSWORD: pass
-  #     MONGO_INITDB_DATABASE: database
-  #   volumes:
-  #     - mongodata:/data/db
-  #   healthcheck:
-  #     test: echo 'db.runCommand("ping").ok' | mongo mongo:27017/test --quiet
-  #     interval: 10s
-  #     timeout: 10s
-  #     retries: 5
-  #     start_period: 40s
-  #   networks:
-  #     - prodcon_network
+  mongodb:
+    image: mongo
+    ports:
+      - "27017:27017"
+    restart: always
+    logging:
+      driver: none
+    # command: mongod --auth
+    # environment:
+    #   MONGO_INITDB_ROOT_USERNAME: user
+    #   MONGO_INITDB_ROOT_PASSWORD: pass
+    #   MONGO_INITDB_DATABASE: database
+    volumes:
+      - mongodata:/data/db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo mongo:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    networks:
+      - prodcon_network
 
   producer:
     build: Producer/
@@ -64,57 +66,47 @@ services:
   consumer_health_check:
     # build: ./consumer
     build: Consumer_one/
-    command: python3 health_check.py
+    # command: python3 health_check.py
     depends_on:
       producer:
         condition: service_started
     networks:
       - prodcon_network
 
-  # consumer_insert_record:
-  #   build: Consumer_two/
-  #   command: python3 insert_record.py
-  #   depends_on:
-  #     rabbitmq:
-  #       condition: service_healthy
-  #     mongodb:
-  #       condition: service_healthy
-  #   environment:
-  #     MONGODB_DATABASE: database
-  #     MONGODB_USERNAME: user
-  #     MONGODB_PASSWORD: pass
-  #     MONGODB_HOSTNAME: mongodb
-  #   networks:
-  #     - prodcon_network
+  consumer_insert_record:
+    build: Consumer_two/
+    # command: python3 insert_record.py
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    # environment:
+    #   MONGODB_DATABASE: database
+    #   MONGODB_USERNAME: user
+    #   MONGODB_PASSWORD: pass
+    #   MONGODB_HOSTNAME: mongodb
+    networks:
+      - prodcon_network
 
-  # consumer_delete_record:
-  #   build: Consumer_three/
-  #   command: python3 delete_record.py
-  #   environment:
-  #     # - CONSUMER_ID=consumer_delete_record
-  #     # - CONSUMER_IP=localhost
-  #     # - CONSUMER_PORT=9003
-  #     - SERVER_HOST=producer
-  #     - SERVER_PORT=5000
-  #   depends_on:
-  #     - rabbitmq
-  #     - mongodb
-  #   networks:
-  #     - prodcon_network
+  consumer_delete_record:
+    build: Consumer_three/
+    # command: python3 delete_record.py
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - prodcon_network
 
-  # consumer_read_database:
-  #   build: Consumer_four/
-  #   command: python3 read_database.py
-  #   depends_on:
-  #     rabbitmq:
-  #       condition: service_healthy
-  #     mongodb:
-  #       condition: service_healthy
-  #   environment:
-  #     MONGODB_DATABASE: database
-  #     MONGODB_USERNAME: user
-  #     MONGODB_PASSWORD: pass
-  #     MONGODB_HOSTNAME: mongodb
-  #   networks:
-  #     - prodcon_network
+  consumer_read_database:
+    build: Consumer_four/
+    command: python3 read_database.py
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    # environment:
+    #   MONGODB_DATABASE: database
+    #   MONGODB_USERNAME: user
+    #   MONGODB_PASSWORD: pass
+    #   MONGODB_HOSTNAME: mongodb
+    networks:
+      - prodcon_network
 

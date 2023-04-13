@@ -11,7 +11,11 @@ connection = pika.BlockingConnection(parameters)
 channel = connection.channel()
 
 # Declare exchange
-channel.exchange_declare(exchange='microservices', exchange_type='direct')
+channel.exchange_declare(
+    exchange='microservices', 
+    exchange_type='direct',
+    durable=True
+)
 
 # Declare queues
 channel.queue_declare(queue='health_check', durable=True)
@@ -27,8 +31,8 @@ channel.queue_bind(exchange='microservices', queue='read_database', routing_key=
 
 @app.route('/')
 def index():
-    # return render_template('../templates/index.html')
-    return "<p>Hello, World!</p>"
+    return render_template('templates/index.html')
+    # return "<p>Hello, World!</p>"
 
 # Health check endpoint
 @app.route('/health_check', methods=['GET'])

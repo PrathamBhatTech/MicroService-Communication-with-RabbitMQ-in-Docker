@@ -3,8 +3,8 @@ import pika
 
 # Connect to MongoDB database
 client = pymongo.MongoClient("mongodb://localhost:27017/")
-db = client["mydatabase"]
-collection = db["students"]
+db = client["database"]
+collection = db["ccdb"]
 
 # RabbitMQ setup
 credentials = pika.PlainCredentials(username='guest', password='guest')
@@ -14,7 +14,7 @@ channel = connection.channel()
 
 
 # Declare the "insert_record" queue
-channel.queue_declare(queue='insert_record')
+channel.queue_declare(queue='insert_record', durable=True)
 
 # Define a callback function to handle incoming messages
 def callback(ch, method, properties, body):
