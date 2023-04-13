@@ -8,7 +8,7 @@ collection = db["ccdb"]
 
 # RabbitMQ setup
 credentials = pika.PlainCredentials(username='guest', password='guest')
-parameters = pika.ConnectionParameters(host='localhost', port=5672, credentials=credentials)
+parameters = pika.ConnectionParameters(host='rabbitmq', port=5672, credentials=credentials)
 connection = pika.BlockingConnection(parameters=parameters)
 channel = connection.channel()
 

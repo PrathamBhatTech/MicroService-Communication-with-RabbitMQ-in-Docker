@@ -8,7 +8,9 @@ db = client["database"]
 col = db["ccdb"]
 
 # RabbitMQ Connection
-connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+credentials = pika.PlainCredentials(username='guest', password='guest')
+parameters = pika.ConnectionParameters(host='rabbitmq', port=5672, credentials=credentials)
+connection = pika.BlockingConnection(parameters=parameters)
 channel = connection.channel()
 
 # Declare the queue

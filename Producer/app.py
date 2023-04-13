@@ -2,7 +2,10 @@ from flask import Flask, request, render_template
 import pika
 import json
 
-app = Flask(__name__)
+app = Flask(
+    __name__,
+    template_folder='templates'
+)
 
 # RabbitMQ setup
 credentials = pika.PlainCredentials(username='guest', password='guest')
@@ -31,7 +34,7 @@ channel.queue_bind(exchange='microservices', queue='read_database', routing_key=
 
 @app.route('/')
 def index():
-    return render_template('templates/index.html')
+    return render_template('index.html')
     # return "<p>Hello, World!</p>"
 
 # Health check endpoint
@@ -52,7 +55,7 @@ def insert_record():
     message = json.dumps({'name': name, 'srn': srn, 'section': section})
     # Publish message to insert_record queue
     channel.basic_publish(exchange='microservices', routing_key='insert_record', body=message)
-    return render_template('../templates/insert.html', message='Record Inserted Successfully!')
+    return render_template('insert.html', message='Record Inserted Successfully!')
 
 
 # Delete record endpoint
@@ -70,7 +73,7 @@ def delete_record():
 def read_database():
     # Publish message to read_database queue
     channel.basic_publish(exchange='microservices', routing_key='read_database', body='Read database request')
-    return render_template('../templates/read.html', message='Read Database message sent!')
+    return render_template('read.html', message='Read Database message sent!')
 
 
 if __name__ == '__main__':
