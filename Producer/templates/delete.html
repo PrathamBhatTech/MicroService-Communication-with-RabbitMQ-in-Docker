@@ -9,12 +9,12 @@
 <body>
   <div class="container">
     <h1>Delete Key</h1>
-    <form action="{{ url_for('delete_record_actually')}}" enctype="multipart/form-data" method="delete">
+    <form action="{{ url_for('delete_record_actually') }}" id="delete-form" enctype="multipart/form-data" method="post">
       <div class="form-group">
         <label for="srn">SRN:</label>
-        <input type="text" class="form-control" id="srn">
+        <input type="text" class="form-control" id="srn" name="srn" required>
       </div>
-      <button type="button" class="btn btn-danger">Delete</button>
+      <button type="submit" class="btn btn-primary">Delete</button>
     </form>
   </div>
   

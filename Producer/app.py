@@ -1,4 +1,5 @@
 import logging
+import time
 from flask import Flask, request, render_template
 import pika
 import json
@@ -36,7 +37,6 @@ channel.queue_bind(exchange='microservices', queue='insert_record', routing_key=
 channel.queue_bind(exchange='microservices', queue='delete_record', routing_key='delete_record')
 channel.queue_bind(exchange='microservices', queue='read_database', routing_key='read_database')
 
-channel.queue_bind(exchange='microservices', queue='send_database', routing_key='send_database')
 
 @app.route('/')
 def index():
@@ -81,7 +81,7 @@ def insert_record_actually():
 def delete_record():
     return render_template('delete.html', message='Record Deleted Successfully!')
 
-@app.route('/delete_record_actually', methods=['DELETE'])
+@app.route('/delete_record_actually', methods=['POST'])
 def delete_record_actually():
     srn = request.form['srn']
     message = srn
@@ -93,16 +93,18 @@ def delete_record_actually():
 # Read database endpoint
 @app.route('/read_database', methods=['GET'])
 def read_database():
-    data = None
+    records = {}
     # Publish message to read_database queue
     channel.basic_publish(exchange='microservices', routing_key='read_database', body='Read database request')
 
     def callback(ch, method, properties, body):
-        data = json.loads(body.decode())
+        nonlocal records
+        records = json.loads(body.decode())
         ch.basic_ack(delivery_tag=method.delivery_tag)
     
     channel.basic_consume(queue='send_database', on_message_callback=callback, auto_ack=True)
-    return render_template('read.html', message='Read Database message sent!', data=data)
+    channel.start_consuming()
+    return render_template('read.html', message='Read Database message sent!', records=records)
 
 
 if __name__ == '__main__':

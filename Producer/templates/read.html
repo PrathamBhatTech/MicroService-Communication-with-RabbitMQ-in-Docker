@@ -17,7 +17,8 @@
                 </tr>
             </thead>
             <tbody id="records-table-body">
-				{% for record in data %}
+				{{ records }}
+				{% for record in records %}
 					<tr>
 						<td>{{ record.name }}</td>
 						<td>{{ record.srn }}</td>
