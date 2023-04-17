@@ -1,8 +1,10 @@
+import json
+import logging
 import pymongo
 import pika
 
 # Connect to MongoDB database
-client = pymongo.MongoClient("mongodb://localhost:27017/")
+client = pymongo.MongoClient("mongodb://mongodb:27017/")
 db = client["database"]
 collection = db["ccdb"]
 
@@ -18,15 +20,16 @@ channel.queue_declare(queue='insert_record', durable=True)
 
 # Define a callback function to handle incoming messages
 def callback(ch, method, properties, body):
+    print("Received %r" % body)
     # Parse incoming message
-    message = body.decode()
-    data = message.split(',')
+    body = body.decode()
+    body = json.loads(body)
+    # message = json.loads(body)
 
-    # Insert record into MongoDB
     record = {
-        "name": data[0],
-        "srn": data[1],
-        "section": data[2]
+        "name": body['name'],
+        "srn": body['srn'],
+        "section": body['section'],
     }
     collection.insert_one(record)
 

@@ -8,7 +8,7 @@
 <body>
 	<div class="container">
 		<h1>Add a New Record</h1>
-		<form id="insert-form">
+		<form action="{{ url_for('insert_record_actually') }}" id="insert-form" enctype="multipart/form-data" method="post">
 			<div class="form-group">
 				<label for="name">Name:</label>
 				<input type="text" class="form-control" id="name" name="name" required>
@@ -29,34 +29,46 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 	<script>
-		$(document).ready(function() {
-			$("#insert-form").submit(function(event) {
-				event.preventDefault(); // Prevent the form from submitting normally
+		// console.log('starting');
+		// const insertForm = document.getElementById('insert-form');
+		// console.log(insertForm);
+		// insertForm.addEventListener('submit', function(event) {
+		// 	event.preventDefault(); // Prevent the form from submitting normally
 
-				// Get the form data
-				var formData = {
-					name: $("#name").val(),
-					srn: $("#srn").val(),
-					section: $("#section").val()
-				};
+		// 	// Get the form data
+		// 	const nameInput = document.getElementById('name');
+		// 	const srnInput = document.getElementById('srn');
+		// 	const sectionInput = document.getElementById('section');
+		// 	const form = {
+		// 		name: nameInput.value,
+		// 		srn: srnInput.value,
+		// 		section: sectionInput.value
+		// 	};
 
-				// Send the form data to the server using AJAX
-				$.ajax({
-					type: "POST",
-					url: "", // Replace with the URL of your server-side script
-					data: formData,
-					success: function(data) {
-						// Display a success message to the user
-						alert("Record added successfully!");
-						$("#insert-form")[0].reset(); // Reset the form
-					},
-					error: function(xhr, status, error) {
-						// Display an error message to the user
-						alert("An error occurred: " + error);
-					}
-				});
-			});
-		});
+		// 	console.log(form);
+
+		// 	// Send the form data to the server using AJAX
+		// 	const xhr = new XMLHttpRequest();
+		// 	xhr.open('POST', 'http://localhost:5000/insert_record_actually'); // Replace with the URL of your server-side script
+		// 	xhr.setRequestHeader('Content-Type', 'application/json');
+		// 	xhr.onload = function() {
+		// 		if (xhr.status === 200) {
+		// 			console.log(form);
+		// 			// Display a success message to the user
+		// 			alert('Record added successfully!');
+		// 			insertForm.reset(); // Reset the form
+		// 		} else {
+		// 			// Display an error message to the user
+		// 			alert('An error occurred: ' + xhr.statusText);
+		// 		}
+		// 	};
+		// 	xhr.onerror = function() {
+		// 		// Display an error message to the user
+		// 		alert('An error occurred: ' + xhr.statusText);
+		// 	};
+		// 	xhr.send(JSON.stringify(form));
+
+		// });
 	</script>
 </body>
 </html>

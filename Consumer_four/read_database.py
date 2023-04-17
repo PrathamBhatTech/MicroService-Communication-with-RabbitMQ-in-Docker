@@ -26,9 +26,10 @@ def callback(ch, method, properties, body):
     # Retrieve all records from the database
     records = collection.find()
 
+    print(records)
+    
     # Send each record to the producer through RabbitMQ
-    for record in records:
-        channel.basic_publish(exchange='', routing_key='send_database', body=str(record))
+    channel.basic_publish(exchange='', routing_key='send_database', body=str(records))
 
     # Acknowledge that the message has been processed
     ch.basic_ack(delivery_tag=method.delivery_tag)

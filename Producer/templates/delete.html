@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Delete Key</title>
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Delete Key</h1>
+    <form action="{{ url_for('delete_record_actually')}}" enctype="multipart/form-data" method="delete">
+      <div class="form-group">
+        <label for="srn">SRN:</label>
+        <input type="text" class="form-control" id="srn">
+      </div>
+      <button type="button" class="btn btn-danger">Delete</button>
+    </form>
+  </div>
+  
+  <!-- Bootstrap JavaScript -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+</body>
+</html>

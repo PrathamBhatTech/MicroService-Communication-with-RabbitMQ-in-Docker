@@ -3,9 +3,9 @@ import json
 import pymongo
 
 # Connect to MongoDB
-client = pymongo.MongoClient("mongodb://localhost:27017/")
+client = pymongo.MongoClient("mongodb://mongodb:27017/")
 db = client["database"]
-col = db["ccdb"]
+collection = db["ccdb"]
 
 # RabbitMQ Connection
 credentials = pika.PlainCredentials(username='guest', password='guest')
@@ -19,8 +19,7 @@ channel.queue_declare(queue='delete_record', durable=True)
 # Define callback function
 def callback(ch, method, properties, body):
     srn = json.loads(body)['srn']
-    col.delete_one({'srn': srn})
-    print("Record with SRN {} deleted from database.".format(srn))
+    collection.delete_one({'srn': srn})
     ch.basic_ack(delivery_tag=method.delivery_tag)
 
 # Start consuming from the queue
