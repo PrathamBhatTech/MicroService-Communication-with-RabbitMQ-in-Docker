@@ -20,7 +20,6 @@ channel.queue_declare(queue='insert_record', durable=True)
 
 # Define a callback function to handle incoming messages
 def callback(ch, method, properties, body):
-    print("Received %r" % body)
     # Parse incoming message
     body = body.decode()
     body = json.loads(body)

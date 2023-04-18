@@ -9,7 +9,7 @@ channel = connection.channel()
 
 
 # Connect to MongoDB
-client = pymongo.MongoClient("mongodb://mongodb:27017")
+client = pymongo.MongoClient("mongodb://mongodb:27017/")
 db = client["database"]
 collection = db["ccdb"]
 
@@ -19,20 +19,20 @@ channel.queue_declare(
     durable=True
 )
 
+channel.queue_declare(queue='send_database', durable=True)
+channel.queue_bind(exchange='microservices', queue='send_database', routing_key='send_database')
+
 # Define the callback function to process incoming messages
 def callback(ch, method, properties, body):
-    print("Received %r" % body)
-
     # Retrieve all records from the database
     records = collection.find()
-
-    print(records)
     
     # Send each record to the producer through RabbitMQ
-    channel.basic_publish(exchange='', routing_key='send_database', body=str(records))
+    # channel.basic_publish(exchange='microservices', routing_key='send_database', body=str(records))
+    channel.basic_publish(exchange='microservices', routing_key='send_database', body="TEST")
 
     # Acknowledge that the message has been processed
-    ch.basic_ack(delivery_tag=method.delivery_tag)
+    channel.basic_ack(delivery_tag=method.delivery_tag)
 
 # Consume messages from the "read_database" queue
 channel.basic_consume(queue='read_database', on_message_callback=callback)

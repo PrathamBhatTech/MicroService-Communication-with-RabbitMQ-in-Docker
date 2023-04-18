@@ -17,14 +17,6 @@
                 </tr>
             </thead>
             <tbody id="records-table-body">
-				{{ records }}
-				{% for record in records %}
-					<tr>
-						<td>{{ record.name }}</td>
-						<td>{{ record.srn }}</td>
-						<td>{{ record.section }}</td>
-					</tr>
-				{% endfor %}
             </tbody>
         </table>
     </div>
@@ -32,15 +24,16 @@
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-    <!-- <script>
+    <script>
         window.addEventListener('load', function () {
             var xhr = new XMLHttpRequest();
-            xhr.open('GET', 'database.json');
+            xhr.open('GET', 'http://localhost:5000/read_database_actually');
             xhr.responseType = 'json';
             xhr.onload = function () {
                 if (xhr.status === 200) {
                     var data = xhr.response;
-                    for (var i = 0; i < data.length; i++) {
+                    console.log(data);
+                    for (var i = 1; i < data.length; i++) {
                         var tr = document.createElement('tr');
                         var record = data[i];
                         var td1 = document.createElement('td');
@@ -58,6 +51,6 @@
             };
             xhr.send();
         });
-    </script> -->
+    </script>
 </body>
 </html>

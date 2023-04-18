@@ -93,19 +93,23 @@ def delete_record_actually():
 # Read database endpoint
 @app.route('/read_database', methods=['GET'])
 def read_database():
-    records = {}
     # Publish message to read_database queue
     channel.basic_publish(exchange='microservices', routing_key='read_database', body='Read database request')
 
-    def callback(ch, method, properties, body):
-        nonlocal records
-        records = json.loads(body.decode())
-        ch.basic_ack(delivery_tag=method.delivery_tag)
-    
-    channel.basic_consume(queue='send_database', on_message_callback=callback, auto_ack=True)
-    channel.start_consuming()
-    return render_template('read.html', message='Read Database message sent!', records=records)
+    return render_template('read.html', message='Read Database message sent!')
 
+@app.route('/read_database_actually', methods=['GET'])
+def read_database_actually():
+
+    method_frame, header_frame, body  = channel.basic_get(queue='send_database')
+    channel.basic_ack(delivery_tag=method_frame.delivery_tag)
+
+    if method_frame:
+        records = body.decode()
+    else:
+        records = {}
+
+    return records
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

@@ -18,7 +18,8 @@ services:
       - "5672:5672" # For RabbitMQ message broker
       # - "25672:25672" # For RabbitMQ clustering
     healthcheck:
-      test: rabbitmq-diagnostics -q ping
+      # test: rabbitmq-diagnostics -q ping
+      test: rabbitmq-diagnostics check_port_connectivity
       interval: 30s
       timeout: 30s
       retries: 3
